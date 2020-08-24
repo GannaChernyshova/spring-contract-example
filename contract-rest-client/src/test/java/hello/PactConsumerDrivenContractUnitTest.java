@@ -2,9 +2,12 @@ package hello;
 
 import au.com.dius.pact.consumer.Pact;
 import au.com.dius.pact.consumer.PactProviderRuleMk2;
+import au.com.dius.pact.consumer.PactVerification;
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
 import au.com.dius.pact.model.RequestResponsePact;
+import org.assertj.core.api.BDDAssertions;
 import org.junit.Rule;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,6 +38,14 @@ public class PactConsumerDrivenContractUnitTest {
                 .headers(headers)
                 .body("{\"id\":1,\"name\":\"foo\",\"surname\":\"bee\"}")
                 .toPact();
+    }
+
+    @Test
+    @PactVerification()
+    public void givenGet_whenSendRequest_shouldReturn200WithProperBody() {
+        messageService.setBackendURL(mockProvider.getUrl());
+        Person person = messageService.getPerson(1L);
+        BDDAssertions.then(person.getName()).isEqualTo("foo");
     }
 
 }
